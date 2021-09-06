@@ -1,7 +1,8 @@
+import { getApplication, updateApplications } from "../../applications";
 import { 
   getPipelineRuns 
 } from "../../azure";
-import InvalidParameterError from "../../errors/invalid_parameter_error";
+import SwitchError from "../../errors/switch_error";
 
 export interface Run {
   id: number,
@@ -12,16 +13,20 @@ export interface Run {
   creation_date: string
 }
 
-const run = async (pipelineId: string, size: string): Promise<Array<Run>> => {
+const run = async (pipeline: string, size: string): Promise<Array<Run>> => {
 
-  if(!pipelineId) {
-    throw new InvalidParameterError("Parameter 'pipelineId' is required.");
+  if(!pipeline) {
+    throw new SwitchError("Parameter 'pipeline' is required.")
   }
 
-  const response = await getPipelineRuns(pipelineId);
+  await updateApplications()
 
-  const pipelines = response.value.slice(0, size);
-  return pipelines.map((x: any) => {
+  const pipelineId = getApplication(pipeline).id
+
+  const response = await getPipelineRuns(pipelineId)
+
+  const runs = response.value.slice(0, size)
+  return runs.map((x: any) => {
     const buildId = x._links.web.href.split('buildId=')[1]
     const url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_PROJECT}/_build/results?buildId=${buildId}`
     return { 
@@ -30,9 +35,23 @@ const run = async (pipelineId: string, size: string): Promise<Array<Run>> => {
       url: url,
       state: x.state,
       result: x.result,
-      creation_date: new Date(x.createdDate).toUTCString()
+      creation_date: formatDate(x.createdDate)
     } as Run
-  });
+  })
+}
+
+const formatDate = (date_str: string) => {
+  const date = new Date(date_str);
+  let formattedDate = (addZero(date.getDate()) + "/" + (addZero(date.getMonth()+1).toString()) + "/" + date.getFullYear());
+  formattedDate += ` ${addZero(date.getHours())}:${addZero(date.getMinutes())}`
+  return formattedDate
+}
+
+const addZero = (number: number): string => {
+  if (number <= 9) 
+      return "0" + number;
+  else
+      return number.toString(); 
 }
 
 export default {

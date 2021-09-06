@@ -33,7 +33,7 @@ const getPipelineRuns = async (pipelineId: string) => {
   return response.data;
 }
 
-const runPipeline = async (pipelineId: string, branchName: string) => {
+const runPipeline = async (pipelineId: string, branchName: string, preview: boolean) => {
   const options = {
     headers
   }
@@ -44,7 +44,8 @@ const runPipeline = async (pipelineId: string, branchName: string) => {
           refName: `refs/heads/${branchName}`
         }
       }
-    }
+    },
+    previewRun: preview
   }
   const url = `/${project}/_apis/pipelines/${pipelineId}/runs?api-version=6.0-preview.1`;
   await api.post(url, body, options)
