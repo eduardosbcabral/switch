@@ -21,9 +21,17 @@ const addDivider = (): Block => ({
   type: 'divider'
 }) as Block
 
+const addSectionWithFields = (...textMessages: string[]): Block => ({
+  type: 'section',
+  fields: textMessages.map(x => ({
+    type: 'mrkdwn',
+    text: x
+  }))
+}) as Block
 
 export {
   addSection,
   addSectionError,
-  addDivider
+  addDivider,
+  addSectionWithFields
 }

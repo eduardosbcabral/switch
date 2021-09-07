@@ -1,6 +1,6 @@
 import "./utils/env";
 import { App, LogLevel } from '@slack/bolt';
-import { addDivider, addSection, addSectionError } from './markdown-builder';
+import { addDivider, addSection, addSectionError, addSectionWithFields } from './markdown-builder';
 import commands from './commands';
 import messages from './messages';
 import { getApplication } from "./applications";
@@ -19,8 +19,6 @@ app.command('/pipelines', async ({ body, ack, say }) => {
 
   try {
 
-    
-    
     const pipelines = await commands.pipelines()
 
     await ack()
@@ -28,17 +26,22 @@ app.command('/pipelines', async ({ body, ack, say }) => {
       attachments: [
         {
           blocks: [
-            addSection(messages.command(user, command)),
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
           ],
           color: '#007fff'
         },
         {
           blocks: [
             addSection(messages.pipelines.title),
-            addDivider(),
             addSection(messages.pipelines.section(pipelines))
           ],
           color: '#55a362'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ] 
     })
@@ -48,13 +51,19 @@ app.command('/pipelines', async ({ body, ack, say }) => {
       attachments: [
         {
           blocks: [
-            addSection(messages.command(user, command)),
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
           ],
           color: '#007fff'
         },
         { 
           blocks: [addSectionError(error)], 
           color: '#D91E36'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ]
     })
@@ -75,21 +84,30 @@ app.command('/runs', async ({ body, ack, say }) => {
   try {
 
     const runs = await commands.runs(id, size)
-  
+
+    const application = getApplication(id);
+
     await ack()
     await say({
       attachments: [
         {
-          blocks: [addSection(messages.command(user, command))],
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
+          ],
           color: '#007fff'
         },
         {
           blocks: [
-            addSection(messages.runs.title(size, getApplication(id))),
-            addDivider(),
-            addSection(messages.runs.section(runs))
+            addSection(messages.runs.title(size, application)),
+            addSection(messages.runs.section(runs, application)),
           ],
           color: '#55a362'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ] 
     })
@@ -98,12 +116,20 @@ app.command('/runs', async ({ body, ack, say }) => {
     await say({ 
       attachments: [
         {
-          blocks: [addSection(messages.command(user, command))],
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
+          ],
           color: '#007fff'
         },
         { 
-          blocks: [addSectionError(error)], 
+          blocks: [addSectionError(error)],
           color: '#D91E36'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ]
     })
@@ -126,16 +152,26 @@ app.command('/deploy', async ({ body, ack, say }) => {
   
     await commands.deploy(pipeline, branchName, preview)
   
+    const application = getApplication(pipeline)
+
     await ack()
     await say({
       attachments: [
         {
-          blocks: [addSection(messages.command(user, command))],
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
+          ],
           color: '#007fff'
         },
         {
-          blocks: [addSection(messages.deploy.title(branchName))],
+          blocks: [addSection(messages.deploy.title(branchName, application))],
           color: '#55a362'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ] 
     })
@@ -144,12 +180,20 @@ app.command('/deploy', async ({ body, ack, say }) => {
     await say({ 
       attachments: [
         {
-          blocks: [addSection(messages.command(user, command))],
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            )
+          ],
           color: '#007fff',
         },
         { 
           blocks: [addSectionError(error)], 
           color: '#D91E36'
+        },
+        {
+          blocks: [addDivider()], color: '#007fff'
         }
       ]
     })

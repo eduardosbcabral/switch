@@ -13,7 +13,7 @@ const run = async (): Promise<Array<Pipeline>> => {
   const pipelinesResponse = response.value
   const pipelines = pipelinesResponse.map((x: any) => {
     const definitionId = x._links.web.href.split('definitionId=')[1]
-    const url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_PROJECT}/_build?definitionId=${definitionId}`
+    const url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_ORGANIZATION}/${process.env.AZURE_PROJECT}/_build?definitionId=${definitionId}`
     return { 
       id: x.id, 
       name: x.name,

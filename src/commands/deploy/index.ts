@@ -16,9 +16,9 @@ const run = async (pipeline: string, branchName: string, preview: boolean) => {
 
   await updateApplications()
 
-  const pipelineId = getApplication(pipeline).id
+  const application = getApplication(pipeline)
 
-  await runPipeline(pipelineId, branchName, preview)
+  await runPipeline(application, branchName, preview)
 }
 
 export default {
