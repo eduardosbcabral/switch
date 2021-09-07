@@ -138,13 +138,13 @@ app.command('/deploy', async ({ body, ack, say }) => {
 
   try {
   
-    await commands.deploy(pipeline, branchName, preview)
+    const deploy = await commands.deploy(pipeline, branchName, preview)
   
     const application = getApplication(pipeline)
 
     await ack()
     await say({
-      text: messages.deploy.title(branchName, application),
+      text: messages.deploy.title(application, deploy),
       attachments: [
         {
           blocks: [

@@ -1,5 +1,4 @@
 import { getPipelines } from "../../azure";
-import { updateApplications } from '../../applications'
 
 export interface Pipeline {
   id: number,

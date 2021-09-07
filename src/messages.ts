@@ -1,4 +1,5 @@
 import { Application, applications } from "./applications";
+import { Deploy } from "./commands/deploy";
 import { Pipeline } from "./commands/pipelines/list";
 import { Run } from "./commands/runs/list";
 import SwitchError from "./errors/switch_error";
@@ -27,7 +28,7 @@ export interface RunsMessage {
 }
 
 export interface DeployMessage {
-  title: (branchName: string, application: Application) => string,
+  title: (application: Application, deploy: Deploy) => string,
   branch_not_found: (branchName: string, application: Application) => string
 }
 
@@ -66,8 +67,8 @@ const runsMessages: RunsMessage = {
 }
 
 const deployMessages: DeployMessage = {
-  title: (branchName: string, application: Application) =>
-    `Deploying <${application.url}|${application.name}> using the branch <${application.repository}/tree/${branchName}|${branchName}>`,
+  title: (application: Application, deploy: Deploy) =>
+    `Deploying <${deploy.deploy_url}|${application.name} ${deploy.build_name ? `(${deploy.build_name})` : ''}> using the branch <${deploy.repository}|${deploy.repository.split('/tree/')[1]}>`,
   branch_not_found: (branchName: string, application: Application) => 
     `Branch with the name *\'${branchName}\'* not found. Check the <${application.repository}|repository> for the correct one.`
 }

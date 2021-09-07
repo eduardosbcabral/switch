@@ -16,14 +16,12 @@ const updateApplications = async (pipelines: Pipeline[]) => {
 
   if (applications != null && applications.length > 0) return;
 
-  console.log('[APPLICATIONS]: UPDATED ======================================')
-
   applications = await Promise.all(pipelines.map(async ({ id, usable_name, url }) => {
     return {
       id: id.toString(),
       name: usable_name,
       url: url,
-      repository: await getRepository(id.toString())
+      //repository: await getRepository(id.toString())
     } as Application
   }))
 }

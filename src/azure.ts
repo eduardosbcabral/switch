@@ -53,7 +53,8 @@ const runPipeline = async (pipeline: Application, branchName: string, preview: b
   const url = `/${project}/_apis/pipelines/${pipeline.id}/runs?api-version=6.0-preview.1`;
 
   try {
-    await api.post(url, body, options)
+    const response = await api.post(url, body, options)
+    return response.data
   } catch (error) {
     const data = (error as AxiosError).response?.data;
     if (data.eventId === 3000) {
