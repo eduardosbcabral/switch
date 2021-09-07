@@ -10,7 +10,7 @@ const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_BOT_APP_TOKEN,
   logLevel: LogLevel.DEBUG,
-  socketMode: true,
+  socketMode: true
 })
 
 app.command('/pipelines', async ({ body, ack, say }) => {
@@ -138,11 +138,11 @@ app.command('/deploy', async ({ body, ack, say }) => {
 
   try {
   
+    await ack()
     const deploy = await commands.deploy(pipeline, branchName, preview)
   
     const application = getApplication(pipeline)
 
-    await ack()
     await say({
       text: messages.deploy.title(application, deploy),
       attachments: [
@@ -223,6 +223,10 @@ app.command('/reload-pipelines', async ({ body, ack, say }) => {
     })
   }
   
+});
+
+app.error(async (error) => {
+  console.error('[GLOBAL ERROR]: ', error);
 });
 
 (async () => {

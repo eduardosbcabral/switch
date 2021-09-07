@@ -8,7 +8,8 @@ import SwitchError from "../../errors/switch_error";
 export interface Deploy {
   build_name: string,
   repository: string,
-  deploy_url: string
+  deploy_url: string,
+  branch_name: string
 }
 
 const run = async (pipeline: string, branchName: string, preview: boolean) => {
@@ -30,14 +31,23 @@ const run = async (pipeline: string, branchName: string, preview: boolean) => {
   const buildId = deploy._links.web.href.split('buildId=')[1]
   const deploy_url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_PROJECT}/_build/results?buildId=${buildId}`
 
+  const repository = getRepository(deploy.resources)
+
+  const spplited = repository.split('/tree/');
+
+  const branch_name = spplited[1] ?? repository;
+
   return {
     build_name: deploy.name,
-    repository: getRepository(deploy.resources),
-    deploy_url: deploy_url
+    repository: repository,
+    deploy_url: deploy_url,
+    branch_name: branch_name
   } as Deploy
 }
 
 const getRepository = (resources: any) => {
+  if (!resources) return 'preview deploy'
+  
   const { repositories } = resources
   const { self } = repositories
   const { refName, repository } = self

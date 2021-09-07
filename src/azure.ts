@@ -58,7 +58,7 @@ const runPipeline = async (pipeline: Application, branchName: string, preview: b
   } catch (error) {
     const data = (error as AxiosError).response?.data;
     if (data.eventId === 3000) {
-      throw new SwitchError(messages.deploy.branch_not_found(branchName, pipeline))
+      throw new SwitchError(messages.deploy.branch_not_found(branchName))
     }
   }
 }

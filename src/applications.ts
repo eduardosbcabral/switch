@@ -6,8 +6,7 @@ import SwitchError from "./errors/switch_error";
 export interface Application {
   id: string,
   name: string,
-  url: string,
-  repository: string
+  url: string
 }
 
 let applications: Application[] = []
@@ -20,8 +19,7 @@ const updateApplications = async (pipelines: Pipeline[]) => {
     return {
       id: id.toString(),
       name: usable_name,
-      url: url,
-      //repository: await getRepository(id.toString())
+      url: url
     } as Application
   }))
 }
@@ -35,15 +33,6 @@ const getApplication = (application: string): Application => {
   return app;
 }
 
-const getRepository = async (applicationId: string) => {
-  const { configuration } = await getPipeline(applicationId);
-  const { repository } = configuration
-  const { fullName, type } = repository
-  if(type === 'gitHub')
-    return `https://github.com/${fullName}`
-
-  return fullName
-}
 
 const reloadApplications = async () => {
   applications = [];

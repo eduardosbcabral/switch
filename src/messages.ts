@@ -29,7 +29,7 @@ export interface RunsMessage {
 
 export interface DeployMessage {
   title: (application: Application, deploy: Deploy) => string,
-  branch_not_found: (branchName: string, application: Application) => string
+  branch_not_found: (branchName: string) => string
 }
 
 export interface ErrorMessage {
@@ -68,9 +68,9 @@ const runsMessages: RunsMessage = {
 
 const deployMessages: DeployMessage = {
   title: (application: Application, deploy: Deploy) =>
-    `Deploying <${deploy.deploy_url}|${application.name} ${deploy.build_name ? `(${deploy.build_name})` : ''}> using the branch <${deploy.repository}|${deploy.repository.split('/tree/')[1]}>`,
-  branch_not_found: (branchName: string, application: Application) => 
-    `Branch with the name *\'${branchName}\'* not found. Check the <${application.repository}|repository> for the correct one.`
+    `Deploying <${deploy.deploy_url}|${application.name} ${deploy.build_name ? `(${deploy.build_name})` : ''}> using the branch <${deploy.repository}|${deploy.branch_name}>`,
+  branch_not_found: (branchName: string) => 
+    `Branch with the name *\'${branchName}\'* not found. Check the repository for the correct one.`
 }
 
 const errorMessages: ErrorMessage = {
