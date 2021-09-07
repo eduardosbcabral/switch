@@ -36,7 +36,7 @@ const getPipelineRuns = async (pipelineId: string) => {
   return response.data;
 }
 
-const runPipeline = async (pipeline: Application, branchName: string, preview: boolean) => {
+const runPipeline = async (pipeline: Application, branchName: string, stagingTag: string) => {
   const options = {
     headers
   }
@@ -48,7 +48,10 @@ const runPipeline = async (pipeline: Application, branchName: string, preview: b
         }
       }
     },
-    previewRun: preview
+    templateParameters: {
+      STAGING_TAG: stagingTag
+    },
+    //previewRun: true
   }
   const url = `/${project}/_apis/pipelines/${pipeline.id}/runs?api-version=6.0-preview.1`;
 

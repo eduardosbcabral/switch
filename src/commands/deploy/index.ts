@@ -12,14 +12,14 @@ export interface Deploy {
   branch_name: string
 }
 
-const run = async (pipeline: string, branchName: string, preview: boolean) => {
+const run = async (pipeline: string, branchName: string, stagingTag: string) => {
 
   if(!pipeline) {
-    throw new SwitchError("Parameter 'pipeline' is required.");
+    throw new SwitchError("Parameter 'pipeline' is required.")
   }
 
   if(!branchName) {
-    throw new SwitchError("Parameter 'branch_name' is required.");
+    throw new SwitchError("Parameter 'branch_name' is required.")
   }
 
   const pipelines = await commands.pipelines()
@@ -27,7 +27,7 @@ const run = async (pipeline: string, branchName: string, preview: boolean) => {
 
   const application = getApplication(pipeline)
 
-  const deploy = await runPipeline(application, branchName, preview)
+  const deploy = await runPipeline(application, branchName, stagingTag)
   const buildId = deploy._links.web.href.split('buildId=')[1]
   const deploy_url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_PROJECT}/_build/results?buildId=${buildId}`
 

@@ -28,7 +28,7 @@ export interface RunsMessage {
 }
 
 export interface DeployMessage {
-  title: (application: Application, deploy: Deploy) => string,
+  title: (application: Application, deploy: Deploy, stagingTag: string) => string,
   branch_not_found: (branchName: string) => string
 }
 
@@ -67,8 +67,8 @@ const runsMessages: RunsMessage = {
 }
 
 const deployMessages: DeployMessage = {
-  title: (application: Application, deploy: Deploy) =>
-    `Deploying <${deploy.deploy_url}|${application.name} ${deploy.build_name ? `(${deploy.build_name})` : ''}> using the branch <${deploy.repository}|${deploy.branch_name}>`,
+  title: (application: Application, deploy: Deploy, stagingTag: string) =>
+    `Deploying <${deploy.deploy_url}|${application.name} ${deploy.build_name ? `(${deploy.build_name})` : ''}> using the branch <${deploy.repository}|${deploy.branch_name}> ${stagingTag ? `and tag ${stagingTag}`:''} `,
   branch_not_found: (branchName: string) => 
     `Branch with the name *\'${branchName}\'* not found. Check the repository for the correct one.`
 }

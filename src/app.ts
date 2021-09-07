@@ -70,7 +70,7 @@ app.command('/runs', async ({ body, ack, say }) => {
 
   const parameters = body.text.split(' ')
 
-  const pipeline = parameters[0]
+  const pipeline = parameters[0] ?? 'pipeline:required'
   const size = parameters[1] ?? 5
 
   const command = `/runs ${pipeline} ${size}`
@@ -129,22 +129,22 @@ app.command('/deploy', async ({ body, ack, say }) => {
 
   const parameters = body.text.split(' ')
 
-  const pipeline = parameters[0]
-  const branchName = parameters[1]
-  const preview: boolean = parameters[2] !== 'true'
+  const pipeline = parameters[0] ?? 'pipeline:required'
+  const branchName = parameters[1] ?? 'branch_name:required'
+  const stagingTag = parameters[2] ?? 'staging_tag:optional'
 
-  const command = `/deploy ${pipeline} ${branchName}`
+  const command = `/deploy ${pipeline} ${branchName} ${stagingTag}`
   const user = body.user_id;
 
   try {
   
     await ack()
-    const deploy = await commands.deploy(pipeline, branchName, preview)
+    const deploy = await commands.deploy(pipeline, branchName, stagingTag)
   
     const application = getApplication(pipeline)
 
     await say({
-      text: messages.deploy.title(application, deploy),
+      text: messages.deploy.title(application, deploy, stagingTag),
       attachments: [
         {
           blocks: [
