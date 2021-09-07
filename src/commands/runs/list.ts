@@ -1,3 +1,4 @@
+import commands from "..";
 import { getApplication, updateApplications } from "../../applications";
 import { 
   getPipelineRuns 
@@ -19,7 +20,8 @@ const run = async (pipeline: string, size: string): Promise<Array<Run>> => {
     throw new SwitchError("Parameter 'pipeline' is required.")
   }
 
-  await updateApplications()
+  const pipelines = await commands.pipelines()
+  await updateApplications(pipelines)
 
   const pipelineId = getApplication(pipeline).id
 
@@ -28,7 +30,7 @@ const run = async (pipeline: string, size: string): Promise<Array<Run>> => {
   const runs = response.value.slice(0, size)
   return runs.map((x: any) => {
     const buildId = x._links.web.href.split('buildId=')[1]
-    const url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_ORGANIZATION}/${process.env.AZURE_PROJECT}/_build/results?buildId=${buildId}`
+    const url = `https://${process.env.AZURE_DNS}/${process.env.AZURE_PROJECT}/_build/results?buildId=${buildId}`
     return { 
       id: x.id, 
       name: x.name, 

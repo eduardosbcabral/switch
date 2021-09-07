@@ -1,9 +1,10 @@
 import "./utils/env";
 import { App, LogLevel } from '@slack/bolt';
-import { addDivider, addSection, addSectionError, addSectionWithFields } from './markdown-builder';
+import { addDivider, addSection, addSectionWithFields } from './markdown-builder';
 import commands from './commands';
 import messages from './messages';
-import { getApplication } from "./applications";
+import { getApplication, updateApplications } from "./applications";
+import reloadPipelines from "./commands/reload-pipelines";
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -20,50 +21,44 @@ app.command('/pipelines', async ({ body, ack, say }) => {
   try {
 
     const pipelines = await commands.pipelines()
+    await updateApplications(pipelines)
 
     await ack()
     await say({ 
+      text: messages.pipelines.title,
       attachments: [
         {
           blocks: [
-            addSectionWithFields(
-              messages.principal.command(command),
-              messages.principal.by(user)
-            )
-          ],
-          color: '#007fff'
-        },
-        {
-          blocks: [
-            addSection(messages.pipelines.title),
             addSection(messages.pipelines.section(pipelines))
           ],
           color: '#55a362'
         },
         {
-          blocks: [addDivider()], color: '#007fff'
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            ),
+            addDivider()
+          ],
+          color: '#007fff'
         }
       ] 
     })
   } catch (error) {
     await ack()
     await say({ 
+      text: messages.error.default(error),
       attachments: [
         {
           blocks: [
             addSectionWithFields(
               messages.principal.command(command),
               messages.principal.by(user)
-            )
+            ),
+            addDivider()
           ],
-          color: '#007fff'
-        },
-        { 
-          blocks: [addSectionError(error)], 
           color: '#D91E36'
-        },
-        {
-          blocks: [addDivider()], color: '#007fff'
         }
       ]
     })
@@ -75,61 +70,54 @@ app.command('/runs', async ({ body, ack, say }) => {
 
   const parameters = body.text.split(' ')
 
-  const id = parameters[0]
+  const pipeline = parameters[0]
   const size = parameters[1] ?? 5
 
-  const command = `/runs ${id} ${size}`
+  const command = `/runs ${pipeline} ${size}`
   const user = body.user_id;
 
   try {
 
-    const runs = await commands.runs(id, size)
+    const runs = await commands.runs(pipeline, size)
 
-    const application = getApplication(id);
+    const application = getApplication(pipeline);
 
     await ack()
     await say({
+      text: messages.runs.title(size, application),
       attachments: [
         {
           blocks: [
-            addSectionWithFields(
-              messages.principal.command(command),
-              messages.principal.by(user)
-            )
-          ],
-          color: '#007fff'
-        },
-        {
-          blocks: [
-            addSection(messages.runs.title(size, application)),
             addSection(messages.runs.section(runs, application)),
           ],
           color: '#55a362'
         },
         {
-          blocks: [addDivider()], color: '#007fff'
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            ),
+            addDivider()
+          ],
+          color: '#007fff'
         }
       ] 
     })
   } catch (error) {
     await ack()
     await say({ 
+      text: messages.error.default(error),
       attachments: [
         {
           blocks: [
             addSectionWithFields(
               messages.principal.command(command),
               messages.principal.by(user)
-            )
+            ),
+            addDivider()
           ],
-          color: '#007fff'
-        },
-        { 
-          blocks: [addSectionError(error)],
           color: '#D91E36'
-        },
-        {
-          blocks: [addDivider()], color: '#007fff'
         }
       ]
     })
@@ -156,44 +144,80 @@ app.command('/deploy', async ({ body, ack, say }) => {
 
     await ack()
     await say({
+      text: messages.deploy.title(branchName, application),
       attachments: [
         {
           blocks: [
             addSectionWithFields(
               messages.principal.command(command),
               messages.principal.by(user)
-            )
+            ),
+            addDivider()
           ],
           color: '#007fff'
-        },
-        {
-          blocks: [addSection(messages.deploy.title(branchName, application))],
-          color: '#55a362'
-        },
-        {
-          blocks: [addDivider()], color: '#007fff'
         }
       ] 
     })
   } catch (error) {
     await ack()
     await say({ 
+      text: messages.error.default(error),
       attachments: [
         {
           blocks: [
             addSectionWithFields(
               messages.principal.command(command),
               messages.principal.by(user)
-            )
+            ),
+            addDivider()
           ],
-          color: '#007fff',
-        },
-        { 
-          blocks: [addSectionError(error)], 
           color: '#D91E36'
-        },
+        }
+      ]
+    })
+  }
+  
+});
+
+app.command('/reload-pipelines', async ({ body, ack, say }) => {
+  
+  const command = `/reload-pipelines`
+  const user = body.user_id;
+
+  try {
+
+    await reloadPipelines.run();
+
+    await ack()
+    await say({ 
+      text: 'The pipelines were reloaded successfully!',
+      attachments: [
         {
-          blocks: [addDivider()], color: '#007fff'
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            ),
+            addDivider()
+          ],
+          color: '#007fff'
+        }
+      ] 
+    })
+  } catch (error) {
+    await ack()
+    await say({ 
+      text: messages.error.default(error),
+      attachments: [
+        {
+          blocks: [
+            addSectionWithFields(
+              messages.principal.command(command),
+              messages.principal.by(user)
+            ),
+            addDivider()
+          ],
+          color: '#D91E36'
         }
       ]
     })

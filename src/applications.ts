@@ -12,17 +12,13 @@ export interface Application {
 
 let applications: Application[] = []
 
-const updateApplications = async (pipelines?: Pipeline[]) => {
+const updateApplications = async (pipelines: Pipeline[]) => {
 
-  let pipelinesResponse: Pipeline[];
+  if (applications != null && applications.length > 0) return;
 
-  if (pipelines != null && pipelines?.length > 0) {
-    pipelinesResponse = pipelines;
-  } else {
-    pipelinesResponse = await commands.pipelines()
-  }
-  
-  applications = await Promise.all(pipelinesResponse.map(async ({ id, usable_name, url }) => {
+  console.log('[APPLICATIONS]: UPDATED ======================================')
+
+  applications = await Promise.all(pipelines.map(async ({ id, usable_name, url }) => {
     return {
       id: id.toString(),
       name: usable_name,
@@ -51,8 +47,15 @@ const getRepository = async (applicationId: string) => {
   return fullName
 }
 
+const reloadApplications = async () => {
+  applications = [];
+  const pipelines = await commands.pipelines()
+  await updateApplications(pipelines);
+}
+
 export {
   updateApplications,
   getApplication,
-  applications
+  applications,
+  reloadApplications
 }

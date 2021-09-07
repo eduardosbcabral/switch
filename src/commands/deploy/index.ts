@@ -1,3 +1,4 @@
+import commands from "..";
 import { getApplication, updateApplications } from "../../applications";
 import { 
   runPipeline 
@@ -14,7 +15,8 @@ const run = async (pipeline: string, branchName: string, preview: boolean) => {
     throw new SwitchError("Parameter 'branch_name' is required.");
   }
 
-  await updateApplications()
+  const pipelines = await commands.pipelines()
+  await updateApplications(pipelines)
 
   const application = getApplication(pipeline)
 
