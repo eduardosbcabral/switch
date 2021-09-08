@@ -54,7 +54,7 @@ const runsMessages: RunsMessage = {
   title: (count: string, application: Application) => `Here are the latest ${count} runs for <${application.url}|${application.name}>\n`,
   section: (runs: Run[], application: Application) => {
     let runsSection = ''
-    runs.forEach(x => runsSection+= `*<${x.url}|${x.name}>* - ${x.creation_date}\n`)
+    runs.forEach(x => runsSection+= `${x.result} *<${x.url}|${x.name}>* - ${x.creation_date}\n`)
 
     if (runsSection.length > 2900) {
       const lastLine = runsSection.slice(0, 2900).lastIndexOf('\n') + 1

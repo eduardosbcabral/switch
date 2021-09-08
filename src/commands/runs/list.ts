@@ -36,7 +36,7 @@ const run = async (pipeline: string, size: string): Promise<Array<Run>> => {
       name: x.name, 
       url: url,
       state: x.state,
-      result: x.result,
+      result: getResult(x.result, x.state),
       creation_date: formatDate(x.createdDate)
     } as Run
   })
@@ -54,6 +54,27 @@ const addZero = (number: number): string => {
       return "0" + number;
   else
       return number.toString(); 
+}
+
+interface Results {
+  failed: string,
+  canceled: string,
+  succeeded: string
+}
+
+const getResult = (result: string, state: string): string => {
+  const results = {
+    'failed': '🔴',
+    'canceled': '⚪',
+    'succeeded': '🟢',
+    'inProgress': '🕒'
+  } as Results
+
+  if (state === 'inProgress') {
+    result = state
+  }
+
+  return results[result as keyof Results] ?? result
 }
 
 export default {
